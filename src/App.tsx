@@ -1,25 +1,33 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.scss";
+import { Button } from "./components/Buttons/Button";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import HomePage from "./components/Views/Home";
+import LoginPage from "./components/Views/Login";
+import RegisterPage from "./components/Views/Register";
+import Navbar from "./components/Navbar/Navbar";
+import UserProfile from "./components/Views/UserProfile";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="App">
+        <header className="App-header">
+          <Navbar />
+        </header>
+        <div className="context">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="HomePage" element={<HomePage />} />
+            <Route path="LoginPage" element={<LoginPage />} />
+            <Route path="RegisterPage" element={<RegisterPage />} />
+            <Route path="Profile" element={<UserProfile />} />
+          </Routes>
+          <Button text="testing the button" type="btnPrimary" />
+          <Button text="this should change" />
+        </div>
+      </div>
+    </Router>
   );
 }
 
