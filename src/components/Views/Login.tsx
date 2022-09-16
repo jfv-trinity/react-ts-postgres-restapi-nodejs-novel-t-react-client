@@ -1,42 +1,55 @@
 import * as React from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Any } from "typeorm";
+import { UserContext, UserProvider } from "../../static/UserContext";
 
-// function checkEmail(element){
-//   if (element.value.includes("@") == false || element.value.includes(".com") == false){
-//       element.style.borderColor="red";
-//       emailSubtext.classList="subtext";
-//       emailSubtext.innerHTML="Invalid Email";
-//     }
-//   else{
-//       emailSubtext.classList="hidden-subtext";
-//       element.style.borderColor="green";
-//       }
-// }
+function Login() {
+  const navigate = useNavigate();
+  const { LoginUser } = React.useContext(UserContext)!;
 
-// function checkPassword(password, password1){
-//     if(password == password1){
-//       document.getElementById('password').style.borderColor='green';
-//     }
-//     else
-//     {
-//         document.getElementById('')
-//     }
-//   }
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
 
-function LoginPage() {
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    const login = { loginEmail };
+    fetch(`http://localhost:3001/users/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(login),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("data was reached", data);
+        if (data.password === loginPassword) {
+          console.log("data: ", data);
+          LoginUser(data);
+          navigate(`/MyLibrary/${data.id}`);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
   return (
     <React.Fragment>
-      <form method="POST">
+      <form method="POST" onSubmit={handleSubmit}>
         <h5 style={{ textAlign: "center" }}>Login</h5>
         <div className="form-group">
           <label>
             {" "}
-            <b>Email Address/Username</b>
+            <b>Email Address</b>
             <input
               type="email"
               className="form-control"
               id="email"
               name="email"
               placeholder="Enter email/username"
+              onChange={(e) => setLoginEmail(e.target.value)}
             />
           </label>
         </div>
@@ -49,6 +62,7 @@ function LoginPage() {
               id="password"
               name="password"
               placeholder="Enter password"
+              onChange={(e) => setLoginPassword(e.target.value)}
             />
           </label>
         </div>
@@ -67,4 +81,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default Login;

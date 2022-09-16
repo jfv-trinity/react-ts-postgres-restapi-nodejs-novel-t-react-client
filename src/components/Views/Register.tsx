@@ -1,9 +1,76 @@
+import { body } from "express-validator";
 import * as React from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import UserProps from "../../common/User";
+import { UserContext } from "../../static/UserContext";
 
 function RegisterPage() {
+  const { LoginUser } = React.useContext(UserContext)!;
+  const navigate = useNavigate();
+  let newUser: UserProps;
+
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
+
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    const newUser = {
+      email: email,
+      username: username,
+      password: password,
+      isLoggedIn: true,
+    };
+    const checkForEmail = { email };
+    // work on this  if password1 = password2 then fetch else return password !=
+    if (password == passwordConfirmation) {
+      console.log(newUser);
+      fetch("http://localhost:3001/users/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(checkForEmail),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data == null) {
+            fetch("http://localhost:3001/users", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(newUser),
+            });
+            const loginEmail = email;
+            const login = { loginEmail };
+            fetch("http://localhost:3001/users/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(login),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                console.log("data was reached", data);
+                localStorage.clear();
+                LoginUser(data);
+                navigate(`/MyLibrary`);
+              });
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+  };
+
   return (
     <React.Fragment>
-      <form className="w3-container" method="post" id="form-register">
+      <form className="w3-container" id="form-register" onSubmit={handleSubmit}>
         <div className="w3-section">
           <p>
             <b>Email Address</b>
@@ -13,6 +80,7 @@ function RegisterPage() {
             className="form-control"
             name="email"
             placeholder="Enter email"
+            onChange={(e) => setEmail(e.target.value)}
           />
           <br />
           <label>
@@ -23,6 +91,7 @@ function RegisterPage() {
               id="username"
               name="username"
               placeholder="Enter Username"
+              onChange={(e) => setUsername(e.target.value)}
             />
           </label>
           <br />
@@ -34,6 +103,7 @@ function RegisterPage() {
               id="password1"
               name="password1"
               placeholder="Enter Password"
+              onChange={(e) => setPassword(e.target.value)}
             />
           </label>
           <p id="password1-error" className="hidden-subtext">
@@ -48,6 +118,7 @@ function RegisterPage() {
               id="password2"
               name="password2"
               placeholder="Re-enter Password"
+              onChange={(e) => setPasswordConfirmation(e.target.value)}
             />
           </label>
           <p id="password2-error" className="hidden-subtext">
@@ -59,7 +130,6 @@ function RegisterPage() {
           >
             Create Account
           </button>
-          <input type="hidden" id="form2" name="type" value="register" />
         </div>
       </form>
     </React.Fragment>

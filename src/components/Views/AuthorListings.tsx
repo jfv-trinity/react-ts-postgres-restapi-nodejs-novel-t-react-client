@@ -1,35 +1,45 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./AuthorListings.scss";
-import { editBook, retrieveBook, deleteBook } from "../../static/index";
+import { displayPublishedBooks } from "../../static/index";
+import BookEntity from "../Container/Book";
+import { UserContext } from "../../static/UserContext";
+import { useNavigate } from "react-router-dom";
+import { CreateBookModal } from "../Modal/createBook";
+import { useParams } from "react-router-dom";
 
 function AuthorListings() {
+  const user = useContext(UserContext);
+  const params = useParams();
+  const [books, setBooks] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch(`http://localhost:3001/books/search/author/${params.id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data) {
+          setBooks(data);
+          console.log("this is the set data", data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }, []);
+
   return (
     <React.Fragment>
-      <div className="centered">
+      <div className="container">
         <h1>
-          {" "}
-          List of Authors' books{" "}
-          <a href="/add_book" className="btn btn-success">
-            {" "}
-            +{" "}
-          </a>
+          {user?.username}&apos;s Listings
+          <CreateBookModal user={user} isLoggedIn={true} />
+          <hr />
         </h1>
-        <ul className="list-group list-group-flush" id="books">
-          {/* {% for book in user.book %}
-                    <li className="list-group-item">
-                        <h6 className="list-header" onClick={() => retrieveBook(book.id)} /> {{ book.book_title }} </h6>
-                        <button type="button" className="btn btn-warning" onClick={() => editBook(book.id)}  /> </ul> edit book details </button>
-                        <button type="button" className="btn btn-warning" onClick={() => retrieveBook(book.id)} /> edit chapters </button>
-                        <button type="button" className="close" onClick={()=> deleteBook(book.id) } />
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </li>
-                    {% endfor %} */}
-        </ul>
-        <a href="/add_book" className="btn btn-success">
-          {" "}
-          Create Novel{" "}
-        </a>
+        {books && <div>{displayPublishedBooks(books, user!)}</div>}
       </div>
     </React.Fragment>
   );
