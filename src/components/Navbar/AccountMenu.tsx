@@ -11,9 +11,12 @@ import Tooltip from "@mui/material/Tooltip";
 import PersonAdd from "@mui/icons-material/PersonAdd";
 import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
+import { Link } from "react-router-dom";
+import { UserContext } from "../../static/UserContext";
 
 export function AccountMenu() {
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const user = React.useContext(UserContext)!;
   const open = Boolean(anchorEl);
   const handleClick = (event: any) => {
     console.log(typeof event);
@@ -25,8 +28,15 @@ export function AccountMenu() {
   return (
     <React.Fragment>
       <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
-        <Typography sx={{ minWidth: 100 }}>Contact</Typography>
-        <Typography sx={{ minWidth: 100 }}>Profile</Typography>
+        <Typography component={Link} to="/Contact" sx={{ minWidth: 100 }}>
+          Contact
+        </Typography>
+        <Typography component={Link} to="/" sx={{ minWidth: 100 }}>
+          Home
+        </Typography>
+        <Typography component={Link} to="/Profile" sx={{ minWidth: 100 }}>
+          Profile
+        </Typography>
         <Tooltip title="Account settings">
           <IconButton
             onClick={handleClick}
@@ -75,29 +85,29 @@ export function AccountMenu() {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem>
+        <MenuItem component={Link} to="/Profile">
           <Avatar /> Profile
         </MenuItem>
-        <MenuItem>
+        <MenuItem component={Link} to={`/MyLibrary/${user.id}`}>
           <Avatar /> Personal Library
         </MenuItem>
-        <MenuItem>
+        <MenuItem component={Link} to={`/AuthorListings/${user.id}`}>
           <Avatar /> My Publishings
         </MenuItem>
         <Divider />
-        <MenuItem>
+        <MenuItem component={Link} to="/addbook">
           <ListItemIcon>
             <PersonAdd fontSize="small" />
           </ListItemIcon>
           Add/Edit Book
         </MenuItem>
-        <MenuItem>
+        <MenuItem component={Link} to="/Profile">
           <ListItemIcon>
             <Settings fontSize="small" />
           </ListItemIcon>
           Settings
         </MenuItem>
-        <MenuItem>
+        <MenuItem component={Link} to="logout">
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>
