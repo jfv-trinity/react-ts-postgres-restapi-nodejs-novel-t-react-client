@@ -1,47 +1,92 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { previousPage } from "../../static/index";
+import { UserContext } from "../../static/UserContext";
+import ChapterProps from "../../common/Chapters";
 
 function ChapterEditor() {
+  const user = useContext(UserContext);
+  const params = useParams();
+  const [id, setId] = React.useState(Number);
+  const [chapterTitle, setChapterTitle] = React.useState(String);
+  const [context, setContext] = React.useState(String);
+  const [bookId, setBookId] = React.useState(Number);
+  let chapterAuthor = user?.id;
+  let updatedChapter: ChapterProps;
+  const navigate = useNavigate();
+
+  const submitForm = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    updatedChapter = { id, chapterTitle, context, bookId, chapterAuthor };
+    console.log("this is the information for updated chapter", updatedChapter);
+
+    fetch(`http://localhost:3001/chapter/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedChapter),
+    });
+    console.log("submitted getting ready to redirect");
+    navigate(-1);
+  };
+
+  useEffect(() => {
+    fetch(`http://localhost:3001/chapter/${params.id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("this is the data for the individual chapter query", data);
+        if (data) {
+          setChapterTitle(data.chapterTitle);
+          setContext(data.context);
+          setBookId(data.bookId);
+          setId(data.id);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }, []);
+
   return (
     <React.Fragment>
-      <form method="POST" className="centered">
+      <form onSubmit={submitForm}>
         <h5>Chapter Editor</h5>
         <hr />
         <div className="form-group">
-          <p>Chapter Title</p>
+          <b>Chapter Title</b>
           <input
             type="text"
-            className="form-control"
-            value="{{chapter.chapter_title}}"
-            id="form-title"
-            name="form-title"
+            value={chapterTitle}
+            onChange={(e) => setChapterTitle(e.target.value)}
           />
-          <p>Chapter Context</p>
-          {/* <input
-            type="text"
-            className="form-control"
-            id="form-context"
-            name="form-context"
-          >
-            "{chapter.context}"
-          </input> */}
-          <input
-            type="hidden"
-            id="chapter-id"
-            name="chapter-id"
-            value="{{chapter.id}}"
-          />
-          <input
-            type="hidden"
-            id="book-id"
-            name="book-id"
-            value="{{chapter.book_id}}"
-          />
+
+          {context && (
+            <div>
+              <b>Chapter Context</b>
+              <input
+                type="text"
+                value={context}
+                onChange={(e) => setContext(e.target.value)}
+              />
+            </div>
+          )}
         </div>
-        <button type="submit" value="Send Form" className="btn btn-primary">
+
+        <button type="submit" className="btn btn-primary">
           Confirm changes
         </button>
-        <button type="reset" className="btn btn-warning">
+        <button
+          type="reset"
+          className="btn btn-warning"
+          onClick={() => location.reload()}
+        >
           reset
         </button>
         <button
